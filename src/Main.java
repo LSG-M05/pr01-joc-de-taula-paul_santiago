@@ -27,11 +27,11 @@ public class Main {
     }
 
 
-    private static void game(){
+    private static void game() {
         Object[][] players = new Object[8][4];
         String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
-        int[]ordenRoles;
-
+        int[] ordenRoles;
+/*
         for (int i = 0; i < players.length; i++) {
             players[i][0]=i+1;
         }
@@ -70,6 +70,8 @@ public class Main {
     private static void partida(Object[][] players){
 
     }
+*/
+    }
 
     private static int[] arrayAleatorio() {
 
@@ -77,12 +79,13 @@ public class Main {
 
         int[] array = new int[8];
         int auxiliar;
+        boolean valido;
 
-        for (int i=0; i < 8; i++) {
-            boolean valido = true;
+        for (int i=0; i < array.length; i++) {
             do {
+                valido = true;
                 auxiliar = randomInt(1, 8);
-                for (int j=0; j < 8; j++) {
+                for (int j=0; j < array.length; j++) {
                     if (array[j] == auxiliar) {
                         valido = false;
                     }
