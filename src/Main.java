@@ -6,7 +6,7 @@ public class Main {
         menu();
     }
 
-    Scanner input = new Scanner(System.in);
+    static Scanner input = new Scanner(System.in);
 
     public static void menu(){
 
@@ -27,15 +27,24 @@ public class Main {
     }
 
 
-    private static void game() {
+    /* [ id, nombre, rol, vida ] */
+    private static Object[][] settings() {
         Object[][] players = new Object[8][4];
         String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
         int[] ordenRoles;
-/*
-        for (int i = 0; i < players.length; i++) {
+
+        for (int i = 0; i < players.length; i++) {   /* id */
             players[i][0]=i+1;
         }
 
+        leerNombres(players);  /* nombres */
+
+        asignarRoles(players);  /* roles */
+
+        asignarVidas(players);  /* roles */
+
+        return players;
+/*
         players[0][1]="Valentina";
         players[1][1]="Marcos";
         players[2][1]="Gabriela";
@@ -73,18 +82,33 @@ public class Main {
 */
     }
 
+    private static void leerNombres(Object[][] players) {
+        String confirmar = "no";
+
+        for (int i=0; i < players.length; i++ ) {
+            do {
+                System.out.print("Introduce el nombre del jugador " + (i+1) + ": ");
+                players[i][1] = input.nextLine();
+
+                System.out.println("El nombre introducido es: " + players[i][1]);
+                System.out.print("Escribe 'si' para confirmar: ");
+                confirmar = input.nextLine();
+            } while (!confirmar.equalsIgnoreCase("si"));
+        }
+    }
+
     private static int[] arrayAleatorio() {
 
         Random random = new Random();
 
-        int[] array = new int[8];
+        int[] array = {9, 9, 9, 9, 9, 9, 9, 9};
         int auxiliar;
         boolean valido;
 
         for (int i=0; i < array.length; i++) {
             do {
                 valido = true;
-                auxiliar = randomInt(1, 8);
+                auxiliar = randomInt(8);
                 for (int j=0; j < array.length; j++) {
                     if (array[j] == auxiliar) {
                         valido = false;
@@ -99,11 +123,34 @@ public class Main {
 
     }
 
-    private static int randomInt(int min, int max) {
+    private static void asignarRoles(Object[][] players) {
+        String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
+        int[] cual = arrayAleatorio();
+
+        for (int i=0; i<players.length; i++) {
+            players[i][2] = roles[cual[i]];
+        }
+    }
+
+    private static void asignarVidas(Object[][] players) {
+        for (int i=0; i< players.length; i++) {
+
+            String aux = (String) players[i][2];
+
+            if (aux.equalsIgnoreCase("Anciano")) {
+                players[i][3] = 2;
+            }
+            else {
+                players[i][3] = 1;
+            }
+        }
+    }
+
+    private static int randomInt(int max) {
 
         Random random = new Random();
 
-        int numeroAleatorio = random.nextInt(8) + 1;
+        int numeroAleatorio = random.nextInt(max);
 
         return numeroAleatorio;
     }
