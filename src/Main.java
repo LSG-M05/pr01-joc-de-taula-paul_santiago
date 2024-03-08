@@ -71,7 +71,8 @@ public class Main {
 
     private static boolean noche(Object[][] players){
         boolean fin = false;
-        int victim = 0;
+        int victim = -1;
+        int protegido = -1;
         String nombre = "";
 
         for (int i=0; i<8; i++){
@@ -81,10 +82,14 @@ public class Main {
 
         System.out.println("Pueblo duerme");
 
-        victim=lobo(players);
-        players[victim][3] = 0;
-
         vidente(players);
+
+        protegido = protector(players);
+
+        victim = lobo(players);
+        if (victim != protegido){
+            players[victim][3] = 0;
+        }
 
         return fin;
     }
@@ -120,6 +125,24 @@ public class Main {
         }while (vida == 0 || rol.equals("Vidente"));
 
         System.out.println("El personaje de " + nombre + " es: " + rol);
+    }
+
+    private static int protector(Object[][] players){
+        String nombre = "";
+        String rol = "";
+        int vida = 0;
+        int victim = 0;
+
+        do{
+            victim = leerInt("Se despierta y protege a alguien: ",1,8);
+            nombre = (String) players[victim-1][1];
+            rol = (String) players[victim-1][2];
+            vida = (int) players[victim-1][3];
+        }while (vida == 0);
+
+        System.out.println("El personaje de " + nombre + " está protegido ");
+
+        return victim-1;
     }
 
     private static int[] arrayAleatorio() {
