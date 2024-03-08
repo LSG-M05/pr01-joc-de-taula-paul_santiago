@@ -1,3 +1,4 @@
+import java.sql.SQLOutput;
 import java.util.Scanner;
 import java.util.Random;
 
@@ -14,7 +15,8 @@ public class Main {
 
         switch (opcion) {
             case 1:
-
+                Object[][] players = settings();
+                noche(players);
                 System.out.println("Volviendo al menú...");
                 menu();
                 break;
@@ -26,8 +28,8 @@ public class Main {
 
     }
 
-
-    private static void game(){
+    /*[id, Nombre, Rol, Vida]*/
+    private static Object[][] settings(){
         Object[][] players = new Object[8][4];
         String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
         int[]ordenRoles;
@@ -63,12 +65,61 @@ public class Main {
         players[6][3]=1;
         players[7][3]=1;
 
-        partida(players);
+        return players;
     }
 
 
-    private static void partida(Object[][] players){
+    private static boolean noche(Object[][] players){
+        boolean fin = false;
+        int victim = 0;
+        String nombre = "";
 
+        for (int i=0; i<8; i++){
+            nombre = (String) players[i][1];
+            System.out.println(i+1 + ": " + nombre);
+        }
+
+        System.out.println("Pueblo duerme");
+
+        victim=lobo(players);
+        players[victim][3] = 0;
+
+        vidente(players);
+
+        return fin;
+    }
+
+    private static int lobo(Object[][] players){
+        String nombre = "";
+        String rol = "";
+        int vida = 0;
+        int victim = 0;
+
+        do{
+            victim = leerInt("Se despierta el lobo y mata a alguien: ",1,8);
+            nombre = (String) players[victim-1][1];
+            rol = (String) players[victim-1][2];
+            vida = (int) players[victim-1][3];
+        }while (vida == 0 || rol.equals("Lobo"));
+        System.out.println("Murió " + nombre);
+
+        return victim-1;
+    }
+
+    private static void vidente(Object[][] players){
+        String nombre = "";
+        String rol = "";
+        int vida = 0;
+        int victim = 0;
+
+        do{
+            victim = leerInt("Se despierta la vidente y mira una carta: ",1,8);
+            nombre = (String) players[victim-1][1];
+            rol = (String) players[victim-1][2];
+            vida = (int) players[victim-1][3];
+        }while (vida == 0 || rol.equals("Vidente"));
+
+        System.out.println("El personaje de " + nombre + " es: " + rol);
     }
 
     private static int[] arrayAleatorio() {
