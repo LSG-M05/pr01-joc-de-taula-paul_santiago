@@ -74,6 +74,7 @@ public class Main {
         int victim = -1;
         int protegido = -1;
         String nombre = "";
+        int vida = -1;
 
         for (int i=0; i<8; i++){
             nombre = (String) players[i][1];
@@ -88,8 +89,21 @@ public class Main {
 
         victim = lobo(players);
         if (victim != protegido){
-            players[victim][3] = 0;
+            vida = (int) players[victim][3]-1;
+            players[victim][3]=vida;
         }
+
+
+
+        victim = dia(players);
+        if (players[victim][0].equals("Anciano")){
+            for (int i=0; i<8; i++){
+                if (!players[i][2].equals("Lobo")){
+                    players[i][2]="Aldeano";
+                }
+            }
+        }
+
 
         return fin;
     }
@@ -143,6 +157,46 @@ public class Main {
         System.out.println("El personaje de " + nombre + " está protegido ");
 
         return victim-1;
+    }
+
+    private static int dia(Object[][] players){
+        String nombre = "";
+        String rol = "";
+        int vida = 0;
+        int victim = 0;
+
+        do{
+            victim = leerInt("El pueblo decide a quién quiere matar: ",1,8);
+            nombre = (String) players[victim-1][1];
+            rol = (String) players[victim-1][2];
+            vida = (int) players[victim-1][3];
+        }while (vida == 0);
+        System.out.println("Murió " + nombre);
+
+        return victim-1;
+    }
+
+    private static int cazador(Object[][] players, int muerte){
+        String nombre = "";
+        String rol = "";
+        int vida = 0;
+        int victim = 0;
+
+        rol = (String) players[muerte][2];
+
+        if (rol.equals("Cazador")){
+            do{
+                victim = leerInt("El cazador mata a alguien: ",1,8);
+                nombre = (String) players[victim-1][1];
+                rol = (String) players[victim-1][2];
+                vida = (int) players[victim-1][3];
+            }while (vida == 0 || rol.equals("Cazador"));
+            System.out.println("Murió " + nombre);
+
+            return victim-1;
+        }
+
+
     }
 
     private static int[] arrayAleatorio() {
