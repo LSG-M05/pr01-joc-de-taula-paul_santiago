@@ -73,7 +73,9 @@ public class Main {
         boolean fin = false;
         int victim = -1;
         int protegido = -1;
+        int visto = -1;
         String nombre = "";
+        String rol = "";
         int vida = -1;
 
         for (int i=0; i<8; i++){
@@ -83,121 +85,61 @@ public class Main {
 
         System.out.println("Pueblo duerme");
 
-        vidente(players);
+        visto = signal(players, "Se despierta la vidente y mira una carta: ", "Vidente");
+            nombre = (String) players[visto][1];
+            rol = (String) players[visto][2];
+            System.out.println("El personaje de " + nombre + " es: " + rol);
 
-        protegido = protector(players);
+        protegido = signal(players, "Se despierta el protector y protege a alguien: ", "");
 
-        victim = lobo(players);
-        if (victim != protegido){
-            vida = (int) players[victim][3]-1;
-            players[victim][3]=vida;
-        }
+        victim = signal(players, "Se despierta el lobo y mata a alguien: ", "Lobo");
+
+            if (victim != protegido){
+                vida = (int) players[victim][3]-1;
+                players[victim][3]=vida;
+            }
+
+            rol = (String) players[victim][2];
+            if (rol.equals("Cazador")){
+                victim = signal(players, "El cazador mata a alguien: ", "Cazador");
+                players[victim][3]=0;
+            }
 
 
-
-        victim = dia(players);
-        if (players[victim][0].equals("Anciano")){
-            for (int i=0; i<8; i++){
-                if (!players[i][2].equals("Lobo")){
-                    players[i][2]="Aldeano";
+        victim = signal(players, "El pueblo dedide a quién matar: ", "");
+            if (players[victim][0].equals("Anciano")){
+                for (int i=0; i<8; i++){
+                    if (!players[i][2].equals("Lobo")){
+                        players[i][2]="Aldeano";
+                    }
                 }
             }
-        }
 
+            rol = (String) players[victim][2];
+            if (rol.equals("Cazador")){
+                victim = signal(players, "El cazador mata a alguien: ", "Cazador");
+                players[victim][3]=0;
+            }
 
         return fin;
     }
 
-    private static int lobo(Object[][] players){
+    private static int signal(Object[][] players, String m1, String m2){
         String nombre = "";
         String rol = "";
         int vida = 0;
         int victim = 0;
 
         do{
-            victim = leerInt("Se despierta el lobo y mata a alguien: ",1,8);
+            victim = leerInt(m1,1,8);
             nombre = (String) players[victim-1][1];
             rol = (String) players[victim-1][2];
             vida = (int) players[victim-1][3];
-        }while (vida == 0 || rol.equals("Lobo"));
-        System.out.println("Murió " + nombre);
+        }while (vida == 0 || rol.equals(m2));
 
         return victim-1;
     }
 
-    private static void vidente(Object[][] players){
-        String nombre = "";
-        String rol = "";
-        int vida = 0;
-        int victim = 0;
-
-        do{
-            victim = leerInt("Se despierta la vidente y mira una carta: ",1,8);
-            nombre = (String) players[victim-1][1];
-            rol = (String) players[victim-1][2];
-            vida = (int) players[victim-1][3];
-        }while (vida == 0 || rol.equals("Vidente"));
-
-        System.out.println("El personaje de " + nombre + " es: " + rol);
-    }
-
-    private static int protector(Object[][] players){
-        String nombre = "";
-        String rol = "";
-        int vida = 0;
-        int victim = 0;
-
-        do{
-            victim = leerInt("Se despierta y protege a alguien: ",1,8);
-            nombre = (String) players[victim-1][1];
-            rol = (String) players[victim-1][2];
-            vida = (int) players[victim-1][3];
-        }while (vida == 0);
-
-        System.out.println("El personaje de " + nombre + " está protegido ");
-
-        return victim-1;
-    }
-
-    private static int dia(Object[][] players){
-        String nombre = "";
-        String rol = "";
-        int vida = 0;
-        int victim = 0;
-
-        do{
-            victim = leerInt("El pueblo decide a quién quiere matar: ",1,8);
-            nombre = (String) players[victim-1][1];
-            rol = (String) players[victim-1][2];
-            vida = (int) players[victim-1][3];
-        }while (vida == 0);
-        System.out.println("Murió " + nombre);
-
-        return victim-1;
-    }
-
-    private static int cazador(Object[][] players, int muerte){
-        String nombre = "";
-        String rol = "";
-        int vida = 0;
-        int victim = 0;
-
-        rol = (String) players[muerte][2];
-
-        if (rol.equals("Cazador")){
-            do{
-                victim = leerInt("El cazador mata a alguien: ",1,8);
-                nombre = (String) players[victim-1][1];
-                rol = (String) players[victim-1][2];
-                vida = (int) players[victim-1][3];
-            }while (vida == 0 || rol.equals("Cazador"));
-            System.out.println("Murió " + nombre);
-
-            return victim-1;
-        }
-
-
-    }
 
     private static int[] arrayAleatorio() {
 
