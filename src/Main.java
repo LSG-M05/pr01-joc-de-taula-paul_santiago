@@ -7,7 +7,6 @@ public class Main {
     }
 
     static Scanner input = new Scanner(System.in);
-    static Object[][] players = new Object[8][4];
 
     public static void menu(){
 
@@ -15,7 +14,9 @@ public class Main {
 
         switch (opcion) {
             case 1:
-
+                Object[][] players = new Object[8][4];
+                players = settings(players);
+                noche(players);
                 System.out.println("Volviendo al menú...");
                 menu();
                 break;
@@ -31,7 +32,7 @@ public class Main {
 
 
 
-    private static boolean dia(Object[][] players) {
+    private static Object[][] dia(Object[][] players) {
         int victim = -1;
         String aldea_vic = "";
         String rol = "";
@@ -47,7 +48,7 @@ public class Main {
         muereAnciano(players, rol);
 
         if (gananLobos(players)) {
-            return false;
+            return players;
         }
         else {
             return noche(players);
@@ -70,7 +71,7 @@ public class Main {
         int countLobos = 0;
 
         for (int i=0; i<players.length; i++) {
-            if ( ((String) players[i][3]).equalsIgnoreCase("Lobo")  ) {
+            if ( ((String) players[i][2]).equalsIgnoreCase("Lobo")  ) {
                 countLobos += 1;
             }
         }
@@ -86,13 +87,17 @@ public class Main {
     private static boolean gananLobos(Object[][] players) {
         int countVivos = 0;
         int countLobos = 0;
+        String playerAuxS;
+        int playerAuxI;
 
         for (int i=0; i<players.length; i++) {
-            if ( (int) players[i][3] >= 1 ) {
+            playerAuxI = (int) players[i][3];
+            if ( playerAuxI >= 1 ) {
                 countVivos += 1;
             }
 
-            if ( (String) players[i][3] == "Lobo"  ) {
+            playerAuxS = (String) players[i][2];
+            if ( playerAuxS.equalsIgnoreCase("Lobo")  ) {
                 countLobos += 1;
             }
         }
@@ -106,7 +111,7 @@ public class Main {
         }
     }
 
-    private static boolean noche(Object[][] players) {
+    private static Object[][] noche(Object[][] players) {
         boolean fin = false;
         int victim = -1;
         int protegido = -1;
@@ -181,8 +186,8 @@ public class Main {
             }
         }
 
-        if (gananLobos(players)) { return gananLobos(players); }
-        if (gananAldeanos(players)) { return gananAldeanos(players); }
+        if (gananLobos(players)) { return players; }
+        if (gananAldeanos(players)) { return players; }
         else { return dia(players); }
     }
 
@@ -192,7 +197,7 @@ public class Main {
 
 
     /* [ id, nombre, rol, vida ] */
-    private static Object[][] settings() {
+    private static Object[][] settings(Object[][] players) {
         String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
         int[] ordenRoles;
 
