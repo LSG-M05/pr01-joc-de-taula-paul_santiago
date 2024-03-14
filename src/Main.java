@@ -55,6 +55,12 @@ public class Main {
         }
     }
 
+    /**
+     * Quita los poderes en caso de que muera el Anciano
+     * @param players es un Object[][] con los datos de los jugadores
+     * @param rol String con el rol del aldeano muerto/linchado
+     * @return Object[][] con los datos de los jugadores actualizados
+     */
     private static Object[][] muereAnciano(Object[][] players, String rol) {
         if (rol.equals("Anciano")) {          /* quitar poderes tras l muerte del anciano */
             for (int i = 0; i < 8; i++) {
@@ -67,6 +73,11 @@ public class Main {
         return players;
     }
 
+    /**
+     * Comprueba si ya han ganado los aldeanos
+     * @param players es un Object[][] con los datos de los jugadores
+     * @return boolean que dice si ganan los aldeanos o no
+     */
     private static boolean gananAldeanos(Object[][] players) {
         int countLobos = 0;
 
@@ -84,6 +95,11 @@ public class Main {
         }
     }
 
+    /**
+     * Comprueba si ya han ganado los lobos
+     * @param players es un Object[][] con los datos de los jugadores
+     * @return boolean que dice si ganan los lobos o no
+     */
     private static boolean gananLobos(Object[][] players) {
         int countVivos = 0;
         int countLobos = 0;
@@ -250,6 +266,11 @@ public class Main {
 */
     }
 
+    /**
+     * Lee los nombres de cada jugador por consola
+     * @param players es un Object[][] con los datos de los jugadores
+     * @return Object[][] con los datos de los jugadores actualizados
+     */
     private static Object[][] leerNombres(Object[][] players) {
         String confirmar = "no";
 
@@ -266,6 +287,10 @@ public class Main {
         return players;
     }
 
+    /**
+     * Genera un array para usarlo posteriormente para asignar roles
+     * @return array de ints distintos del 1 al 8
+     */
     private static int[] arrayAleatorio() {
 
         Random random = new Random();
@@ -292,6 +317,11 @@ public class Main {
 
     }
 
+    /**
+     * Asigna un rol aleatorio a cada jugador
+     * @param players es un Object[][] con los datos de los jugadores
+     * @return Object[][] con los datos de los jugadores actualizados
+     */
     private static Object[][] asignarRoles(Object[][] players) {
         String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
         int[] cual = arrayAleatorio();
@@ -303,6 +333,11 @@ public class Main {
         return players;
     }
 
+    /**
+     * Asigna una vida a cada jugador, al anciano le suma una extra
+     * @param players es un Object[][] con los datos de los jugadores
+     * @return Object[][] con los datos de los jugadores actualizados
+     */
     private static Object[][] asignarVidas(Object[][] players) {
         for (int i=0; i< players.length; i++) {
 
@@ -319,6 +354,11 @@ public class Main {
         return players;
     }
 
+    /**
+     * Genera un int aleatorio del 0 al max (excluido)
+     * @param max int que marca el limite del int aleatorio
+     * @return int aleatorio del 0 al max
+     */
     private static int randomInt(int max) {
 
         Random random = new Random();
@@ -328,6 +368,13 @@ public class Main {
         return numeroAleatorio;
     }
 
+    /**
+     * Lee int por consola
+     * @param missatge String para el usuario
+     * @param min int minimo valido
+     * @param max int maximo valido
+     * @return int que va del min al max
+     */
     private static int leerInt(String missatge, int min, int max) {
         Scanner llegir = new Scanner(System.in);
         int x = 0;
