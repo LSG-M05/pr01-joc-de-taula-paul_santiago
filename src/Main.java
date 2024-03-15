@@ -30,7 +30,7 @@ public class Main {
 
     /*[id, Nombre, Rol, Vida]*/
     private static Object[][] settings(Object[][] players) {
-        String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
+        String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Aldeano", "Aldeano"};
         int[] ordenRoles;
 
         for (int i = 0; i < players.length; i++) {   /* id */
@@ -61,7 +61,7 @@ public class Main {
         players[3][2]="Cazador";
         players[4][2]="Lobo";
         players[5][2]="Anciano";
-        players[6][2]="Ángel";
+        players[6][2]="Aldeano";
         players[7][2]="Protector";
 
         players[0][3]=1;
@@ -90,7 +90,7 @@ public class Main {
         aldea_vic = (String) players[victim][1];
         rol = (String) players[victim][2];
 
-        System.out.println("La aldea ha matado a " + aldea_vic + ", y su rol era " + rol);
+        System.out.println("La aldea ha linchado a " + aldea_vic + ", y su rol era " + rol);
 
         muereAnciano(players, rol);
 
@@ -109,7 +109,8 @@ public class Main {
      * @return Object[][] con los datos de los jugadores actualizados
      */
     private static Object[][] muereAnciano(Object[][] players, String rol) {
-        if (rol.equals("Anciano")) {          /* quitar poderes tras l muerte del anciano */
+        if (rol.equals("Anciano")) { /* quitar poderes tras l muerte del anciano */
+            System.out.println("El pueblo pierde sus poderes.");
             for (int i = 0; i < 8; i++) {
                 if (!players[i][2].equals("Lobo")) {
                     players[i][2] = "Aldeano";
@@ -118,6 +119,36 @@ public class Main {
         }
 
         return players;
+    }
+
+    private static void accionVidente(Object[][] players) {
+        int aux = -1;
+        int vivo;
+        for (int i=0; i< players.length; i++) {
+            String rol = (String) players[i][2];
+            if (rol.equalsIgnoreCase("vidente")) {
+                vivo = (int) players[i][3];
+                if (vivo > 0) {
+                    int visto = signal(players, "Se despierta la vidente y mira una carta: ", "Vidente");
+                    String nombre = (String) players[visto][1];
+                    rol = (String) players[visto][2];
+                    System.out.println("El personaje de " + nombre + " es: " + rol);
+                }
+            }
+        }
+    }
+
+    private static boolean estaVivo(Object[][] players, String rolBuscado) {
+        for (int i=0; i< players.length; i++) {
+            String rol = (String) players[i][2];
+            if (rol.equalsIgnoreCase(rolBuscado)) {
+                int vivo = (int) players[i][3];
+                if (vivo > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -187,19 +218,24 @@ public class Main {
         int vida = -1;
 
         for (int i = 0; i < 8; i++) {
-            nombre = (String) players[i][1];
-            System.out.println(i + 1 + ": " + nombre);
+            vida = (int) players[i][3];
+            if (vida > 0) {
+                nombre = (String) players[i][1];
+                rol = (String) players[i][2];
+                System.out.println(i + 1 + ": " + nombre + " - " + rol);
+            }
+            vida = -1;
         }
 
         System.out.println("Pueblo duerme");
         /* Vidente */
-        visto = signal(players, "Se despierta la vidente y mira una carta: ", "Vidente");
-        nombre = (String) players[visto][1];
-        rol = (String) players[visto][2];
-        System.out.println("El personaje de " + nombre + " es: " + rol);
+        accionVidente(players);
         /* Protector */
-        protegido = signal(players, "Se despierta el protector y protege a alguien: ", "");
+        if (estaVivo(players, "Protector")) {
+            protegido = signal(players, "Se despierta el protector y protege a alguien: ", "");
+        }
         /* Lobo */
+
         victim = signal(players, "Se despierta el lobo y mata a alguien: ", "Lobo");
 
         if (victim != protegido) {
@@ -208,10 +244,11 @@ public class Main {
             if (vida == 0) {
                 lobo_vic = (String) players[victim][1];
                 rol = (String) players[victim][2];
+                System.out.println("Ha muerto: " + lobo_vic + ". Su rol era: " + rol);
             }
         }
 
-        System.out.println("Ha muerto: " + lobo_vic);
+
 
         victim = cazador(players, victim, rol);
         players[victim][3] = 0;
@@ -235,7 +272,6 @@ public class Main {
             }
         }
 
- */
 
         victim = cazador(players, victim, rol);
         players[victim][3] = 0;
@@ -248,7 +284,7 @@ public class Main {
                 }
             }
         }
-
+*/
         if (gananLobos(players)) { return players; }
         if (gananAldeanos(players)) { return players; }
         else { return dia(players); }
@@ -277,7 +313,8 @@ public class Main {
             victim = signal(players, "El cazador mata a alguien: ", "Cazador");
             players[victim][3] = 0;
             cazador_vic = (String) players[victim][1];
-            System.out.println("Ha muerto: " + cazador_vic);
+            rol = (String) players[victim][2];
+            System.out.println("Ha muerto: " + cazador_vic + ". Su rol era: " + rol);
         }
 
         return victim;
@@ -310,7 +347,7 @@ public class Main {
      * @return Object[][] con los datos de los jugadores actualizados
      */
     private static Object[][] asignarRoles(Object[][] players) {
-        String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Ángel", "Aldeano"};
+        String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Aldeano", "Aldeano"};
         int[] cual = arrayAleatorio();
 
         for (int i=0; i<players.length; i++) {
