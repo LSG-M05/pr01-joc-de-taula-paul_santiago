@@ -97,6 +97,9 @@ public class Main {
         if (gananLobos(players)) {
             return players;
         }
+        if (gananAldeanos(players)) {
+            return players;
+        }
         else {
             return noche(players);
         }
@@ -158,10 +161,14 @@ public class Main {
      */
     private static boolean gananAldeanos(Object[][] players) {
         int countLobos = 0;
+        int vida = 0;
 
         for (int i=0; i<players.length; i++) {
             if ( ((String) players[i][2]).equalsIgnoreCase("Lobo")  ) {
-                countLobos += 1;
+                vida = (int) players[i][3];
+                if (vida > 0) {
+                    countLobos += 1;
+                }
             }
         }
         if (countLobos == 0) {
@@ -179,8 +186,8 @@ public class Main {
      * @return boolean que dice si ganan los lobos o no
      */
     private static boolean gananLobos(Object[][] players) {
-        int countVivos = 0;
-        int countLobos = 0;
+        double countVivos = 0;
+        double countLobos = 0;
         String playerAuxS;
         int playerAuxI;
 
@@ -188,15 +195,15 @@ public class Main {
             playerAuxI = (int) players[i][3];
             if ( playerAuxI >= 1 ) {
                 countVivos += 1;
-            }
 
-            playerAuxS = (String) players[i][2];
-            if ( playerAuxS.equalsIgnoreCase("Lobo")  ) {
-                countLobos += 1;
+                playerAuxS = (String) players[i][2];
+                if (playerAuxS.equalsIgnoreCase("Lobo")) {
+                    countLobos += 1;
+                }
             }
         }
 
-        if ( countVivos <= countLobos ) {
+        if ( countLobos >= (countVivos/2) ) {
             System.out.println("Ganan los lobos.");
             return true;
         }
@@ -248,11 +255,15 @@ public class Main {
             }
         }
 
-
+        if (gananLobos(players)) { return players; }
+        if (gananAldeanos(players)) { return players; }
 
         victim = cazador(players, victim, rol);
         players[victim][3] = 0;
         rol = (String) players[victim][2];
+
+        if (gananLobos(players)) { return players; }
+        if (gananAldeanos(players)) { return players; }
 
         muereAnciano(players, rol);
 
