@@ -15,7 +15,7 @@ public class Main {
         switch (opcion) {
             case 1:
                 Object[][] players = new Object[8][4];
-                players = settings(players);
+                settings(players);
                 noche(players);
                 System.out.println("Volviendo al menú...");
                 menu();
@@ -29,56 +29,80 @@ public class Main {
     }
 
     /*[id, Nombre, Rol, Vida]*/
-    private static Object[][] settings(Object[][] players) {
-        String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Aldeano", "Aldeano"};
-        int[] ordenRoles;
+    private static void settings(Object[][] players) {
 
         for (int i = 0; i < players.length; i++) {   /* id */
             players[i][0] = i + 1;
         }
 
-        players = leerNombres(players);  /* nombres */
+        leerNombres(players);  /* nombres */
 
-        players = asignarRoles(players);  /* roles */
+        asignarRoles(players);  /* roles */
 
-        players = asignarVidas(players);  /* roles */
-
-        return players;
-
-        /*
-        players[0][1]="Valentina";
-        players[1][1]="Marcos";
-        players[2][1]="Gabriela";
-        players[3][1]="Andrés";
-        players[4][1]="Natalia";
-        players[5][1]="Juan";
-        players[6][1]="Ana";
-        players[7][1]="Pablo";
-
-        players[0][2]="Lobo";
-        players[1][2]="Vidente";
-        players[2][2]="Aldeano";
-        players[3][2]="Cazador";
-        players[4][2]="Lobo";
-        players[5][2]="Anciano";
-        players[6][2]="Aldeano";
-        players[7][2]="Protector";
-
-        players[0][3]=1;
-        players[1][3]=1;
-        players[2][3]=1;
-        players[3][3]=1;
-        players[4][3]=1;
-        players[5][3]=2;
-        players[6][3]=1;
-        players[7][3]=1;
-
-        partida(players);
-         */
+        asignarVidas(players);  /* roles */
 
     }
 
+    /**
+     * Este método contiene todas las acciones a realizar durante la ronda de noche de la partida
+     * @param players Con el objeto de jugadores
+     * @return El objeto de jugadores actualizado según lo que haya pasado durante la ronda
+     */
+    private static Object[][] noche(Object[][] players) {
+        boolean fin = false;
+        int victim = -1;
+        int protegido = -1;
+        String lobo_vic = "";
+        String nombre = "";
+        String rol = "";
+        int vida = -1;
 
+        for (int i = 0; i < 8; i++) {
+            vida = (int) players[i][3];
+            if (vida > 0) {
+                nombre = (String) players[i][1];
+                rol = (String) players[i][2];
+                System.out.println(i + 1 + ": " + nombre + " - " + rol);
+            }
+        }
+
+        System.out.println("Pueblo duerme");
+        /* Vidente */
+        if (estaVivo(players, "Vidente")) {
+            accionVidente(players);
+        }
+
+        /* Protector */
+        if (estaVivo(players, "Protector")) {
+            protegido = signal(players, "Se despierta el protector y protege a alguien: ", "");
+        }
+
+        /* Lobo */
+        victim = signal(players, "Se despierta el lobo y mata a alguien: ", "Lobo");
+
+        if (victim != protegido) {
+            vida = (int) players[victim][3] - 1;
+            players[victim][3] = vida;
+            if (vida == 0) {
+                lobo_vic = (String) players[victim][1];
+                rol = (String) players[victim][2];
+                System.out.println("Ha muerto: " + lobo_vic + ". Su rol era: " + rol);
+            }
+        }
+
+        victim = cazador(players, victim, rol);
+        players[victim][3] = 0;
+
+        if (gananLobos(players)) { return players; }
+        if (gananAldeanos(players)) { return players; }
+        else { return dia(players); }
+    }
+
+    /**
+     * Este método contiene todas las acciones a realizar durante la ronda de día de la partida
+     * @param players Con el objeto de jugadores
+     * @return El objeto de jugadores actualizado según lo que haya pasado durante la ronda
+     */
     private static Object[][] dia(Object[][] players) {
         int victim = -1;
         String aldea_vic = "";
@@ -93,6 +117,9 @@ public class Main {
         System.out.println("La aldea ha linchado a " + aldea_vic + ", y su rol era " + rol);
 
         muereAnciano(players, rol);
+
+        victim = cazador(players, victim, rol);
+        players[victim][3] = 0;
 
         if (gananLobos(players)) {
             return players;
@@ -109,10 +136,10 @@ public class Main {
      * Quita los poderes en caso de que muera el Anciano
      * @param players es un Object[][] con los datos de los jugadores
      * @param rol String con el rol del aldeano muerto/linchado
-     * @return Object[][] con los datos de los jugadores actualizados
+     * return Object[][] con los datos de los jugadores actualizados
      */
-    private static Object[][] muereAnciano(Object[][] players, String rol) {
-        if (rol.equals("Anciano")) { /* quitar poderes tras l muerte del anciano */
+    private static void muereAnciano(Object[][] players, String rol) {
+        if (rol.equals("Anciano")) { /* quitar poderes tras la muerte del anciano */
             System.out.println("El pueblo pierde sus poderes.");
             for (int i = 0; i < 8; i++) {
                 if (!players[i][2].equals("Lobo")) {
@@ -120,27 +147,27 @@ public class Main {
                 }
             }
         }
-
-        return players;
     }
 
+    /**
+     * Este método ejecuta la acción de la Vidente, es decir, mirar una carta de un jugador
+     * @param players El objeto con los datos de los jugadores
+     */
     private static void accionVidente(Object[][] players) {
-        int aux = -1;
-        int vivo;
-        for (int i=0; i< players.length; i++) {
-            String rol = (String) players[i][2];
-            if (rol.equalsIgnoreCase("vidente")) {
-                vivo = (int) players[i][3];
-                if (vivo > 0) {
-                    int visto = signal(players, "Se despierta la vidente y mira una carta: ", "Vidente");
-                    String nombre = (String) players[visto][1];
-                    rol = (String) players[visto][2];
-                    System.out.println("El personaje de " + nombre + " es: " + rol);
-                }
-            }
-        }
+        String rol;
+
+        int visto = signal(players, "Se despierta la vidente y mira una carta: ", "Vidente");
+        String nombre = (String) players[visto][1];
+        rol = (String) players[visto][2];
+        System.out.println("El personaje de " + nombre + " es: " + rol);
     }
 
+    /**
+     * Este método sirve para despertar a la vidente y al protector siempre que sigan vivos
+     * @param players El objeto con los datos de los jugadores
+     * @param rolBuscado "Vidente" o "Protector" en nuestro caso
+     * @return true o false
+     */
     private static boolean estaVivo(Object[][] players, String rolBuscado) {
         for (int i=0; i< players.length; i++) {
             String rol = (String) players[i][2];
@@ -212,95 +239,14 @@ public class Main {
         }
     }
 
-    private static Object[][] noche(Object[][] players) {
-        boolean fin = false;
-        int victim = -1;
-        int protegido = -1;
-        int visto = -1;
-        String lobo_vic = "";
-        String cazador_vic = "";
-        String aldea_vic = "";
-        String nombre = "";
-        String rol = "";
-        int vida = -1;
 
-        for (int i = 0; i < 8; i++) {
-            vida = (int) players[i][3];
-            if (vida > 0) {
-                nombre = (String) players[i][1];
-                rol = (String) players[i][2];
-                System.out.println(i + 1 + ": " + nombre + " - " + rol);
-            }
-            vida = -1;
-        }
-
-        System.out.println("Pueblo duerme");
-        /* Vidente */
-        accionVidente(players);
-        /* Protector */
-        if (estaVivo(players, "Protector")) {
-            protegido = signal(players, "Se despierta el protector y protege a alguien: ", "");
-        }
-        /* Lobo */
-
-        victim = signal(players, "Se despierta el lobo y mata a alguien: ", "Lobo");
-
-        if (victim != protegido) {
-            vida = (int) players[victim][3] - 1;
-            players[victim][3] = vida;
-            if (vida == 0) {
-                lobo_vic = (String) players[victim][1];
-                rol = (String) players[victim][2];
-                System.out.println("Ha muerto: " + lobo_vic + ". Su rol era: " + rol);
-            }
-        }
-
-        if (gananLobos(players)) { return players; }
-        if (gananAldeanos(players)) { return players; }
-
-        victim = cazador(players, victim, rol);
-        players[victim][3] = 0;
-        rol = (String) players[victim][2];
-
-        if (gananLobos(players)) { return players; }
-        if (gananAldeanos(players)) { return players; }
-
-        muereAnciano(players, rol);
-
-/*
-        victim = signal(players, "El pueblo dedide a quién matar: ", "");
-        players[victim][3] = 0;
-        aldea_vic = (String) players[victim][1];
-        rol = (String) players[victim][2];
-
-        System.out.println("La aldea ha matado a " + aldea_vic + ", y su rol era " + rol);
-
-        if (rol.equals("Anciano")) {
-            for (int i = 0; i < 8; i++) {
-                if (!players[i][2].equals("Lobo")) {
-                    players[i][2] = "Aldeano";
-                }
-            }
-        }
-
-
-        victim = cazador(players, victim, rol);
-        players[victim][3] = 0;
-        rol = (String) players[victim][2];
-
-        if (rol.equals("Anciano")) {
-            for (int i = 0; i < 8; i++) {
-                if (!players[i][2].equals("Lobo")) {
-                    players[i][2] = "Aldeano";
-                }
-            }
-        }
-*/
-        if (gananLobos(players)) { return players; }
-        if (gananAldeanos(players)) { return players; }
-        else { return dia(players); }
-    }
-
+    /**
+     * Este método guarda la id de la persona a la que uno o varios jugadores señalan durante la partida
+     * @param players El objeto con los datos de los participantes
+     * @param m1 El mensaje que debe decir el narrador
+     * @param m2 Con este String validaremos que el jugador no se señale a sí mismo
+     * @return la id del jugador señalado
+     */
     private static int signal(Object[][] players, String m1, String m2) {
         String nombre = "";
         String rol = "";
@@ -317,6 +263,13 @@ public class Main {
         return victim - 1;
     }
 
+    /**
+     * Este método es similar al signal pero con las peculiaridades del cazador
+     * @param players El objeto con los datos actualizados de los jugadores
+     * @param victim sólo es para que el return no se quede vacío en caso de no haber muerto el cazador
+     * @param rol Es para validar que la persona que ha muerto es el cazador y así ejecutar el programa
+     * @return la id del personaje que muere por acción del cazador
+     */
     private static int cazador(Object[][] players, int victim, String rol) {
         String cazador_vic = "";
 
@@ -336,57 +289,54 @@ public class Main {
      * @param players es un Object[][] con los datos de los jugadores
      * @return Object[][] con los datos de los jugadores actualizados
      */
-    private static Object[][] leerNombres(Object[][] players) {
-        String confirmar = "no";
+    private static void leerNombres(Object[][] players) {
+        String confirmar = "";
 
         for (int i=0; i < players.length; i++ ) {
-            do {
+
                 System.out.print("Introduce el nombre del jugador " + (i+1) + ": ");
                 players[i][1] = input.nextLine();
 
-                System.out.println("El nombre introducido es: " + players[i][1]);
+                /*System.out.println("El nombre introducido es: " + players[i][1]);
                 System.out.print("Escribe 'si' para confirmar: ");
                 confirmar = input.nextLine();
-            } while (!confirmar.equalsIgnoreCase("si"));
+
+                }while confirmar.equals("si")*/
+
         }
-        return players;
     }
 
     /**
      * Asigna un rol aleatorio a cada jugador
      * @param players es un Object[][] con los datos de los jugadores
-     * @return Object[][] con los datos de los jugadores actualizados
+     * return Object[][] con los datos de los jugadores actualizados
      */
-    private static Object[][] asignarRoles(Object[][] players) {
+    private static void asignarRoles(Object[][] players) {
         String[] roles = {"Lobo", "Lobo", "Vidente", "Cazador", "Anciano", "Protector", "Aldeano", "Aldeano"};
         int[] cual = arrayAleatorio();
 
         for (int i=0; i<players.length; i++) {
             players[i][2] = roles[cual[i]];
         }
-
-        return players;
     }
 
     /**
      * Asigna una vida a cada jugador, al anciano le suma una extra
      * @param players es un Object[][] con los datos de los jugadores
-     * @return Object[][] con los datos de los jugadores actualizados
+     * return Object[][] con los datos de los jugadores actualizados
      */
-    private static Object[][] asignarVidas(Object[][] players) {
+    private static void asignarVidas(Object[][] players) {
         for (int i=0; i< players.length; i++) {
 
             String aux = (String) players[i][2];
 
-            if (aux.equalsIgnoreCase("Anciano")) {
+            if (aux.equals("Anciano")) {
                 players[i][3] = 2;
             }
             else {
                 players[i][3] = 1;
             }
         }
-
-        return players;
     }
 
     /**
